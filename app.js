@@ -6,7 +6,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const md5 = require("md5");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 mongoose.connect("mongodb://localhost:27017/loginDB", {
     useNewUrlParser: true,
@@ -44,32 +45,38 @@ app.get('/register', (req, res) => {
 
 //----------post routes----------
 app.post('/register', (req, res) => {
-    const newUser = new User({
-        email: req.body.username,
-        pass: md5(req.body.password),
-    })
+    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        const newUser = new User({
+            email: req.body.username,
+            pass: hash,
+        })
 
-    newUser.save((err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render("secrets");
-        }
-    })
+        newUser.save((err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.render("secrets");
+            }
+        });
+    });
 });
 
 app.post('/login', (req, res) => {
     const userName = req.body.username;
-    const passWord = md5(req.body.password);
+    const passWord = req.body.password;
 
     User.findOne({ email: userName }, (err, foundUser) => {
         if (err) {
             console.log(err);
         } else {
-            if (foundUser.pass === passWord) {
-                res.render("secrets");
-            } else {
-                console.log("wrong pass");
+            if (foundUser) {
+                bcrypt.compare(passWord, foundUser.pass).then(function(result) {
+                    if(result) {
+                        res.render("secrets");
+                    } else {
+                        console.log("wrong pass");
+                    }
+                });
             }
         }
     })
