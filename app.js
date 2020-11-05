@@ -3,6 +3,7 @@
 //----------declarations----------
 require('dotenv').config();
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -13,7 +14,7 @@ const passportLocalMongoose = require("passport-local-mongoose");
 
 const app = express();
 
-mongoose.connect("mongodb://localhost:27017/loginDB", {
+mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
