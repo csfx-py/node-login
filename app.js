@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({
 
 //----------session and authentication----------
 app.use(session({
-    secret: process.env.SECRET,
+    secret: "testniggasecret",
     resave: false,
     saveUninitialized: false
 }));
